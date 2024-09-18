@@ -1,5 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
+const { execFile } = require("child_process");
+let pythonProcess; // Pythonプロセスをグローバルに保持
 
 // Let electron reloads by itself
 if (
@@ -32,6 +34,16 @@ function createWindow() {
     // and load the index.html of the app.
     mainWindow.loadFile(path.join(__dirname, "build/index.html"));
   }
+  // Pythonのスタンドアロンexeを実行
+  const executablePath = path.join(__dirname, "build/main");
+
+  pythonProcess = execFile(executablePath, () => {
+    // if (error) {
+    //   console.error(`エラー: ${error}`);
+    //   return;
+    // }
+    // console.log(`Pythonの出力: ${stdout}`);
+  });
 
   if (process.env.ELECTRON_DEBUG === "true") {
     // Open the DevTools.
@@ -51,6 +63,9 @@ app.on("ready", createWindow);
 app.on("window-all-closed", () => {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
+  if (pythonProcess) {
+    pythonProcess.kill(); // プロセスを終了
+  }
   if (process.platform !== "darwin") {
     app.quit();
   }

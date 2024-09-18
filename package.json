@@ -11,7 +11,7 @@
     "electron": "cross-env ELECTRON_DEBUG=true electron .",
     "hot": "concurrently -k \"npm run start:nobrowser\" \"cross-env ELECTRON_HOT=true npm run electron \"",
     "cold": "npm run build && electron .",
-    "exe:portable": "electron-packager . phaser-electron-app-name --platform win32 --arch x64 --overwrite --out exe"
+    "exe:portable": "electron-packager . phaser-electron-app-name --overwrite --out exe"
   },
   "dependencies": {
     "phaser": "^3.60.0"
@@ -40,5 +40,18 @@
   "include": [
     "src"
   ],
-  "type": "commonjs"
+  "type": "commonjs",
+  "volta": {
+    "node": "21.7.1",
+    "yarn": "4.0.0-rc.39"
+  },
+  "build": {
+    "appId": "com.example.phaserai",
+    "productName": "PhaserAI",
+    "files": [
+      "dist/**/*",
+      "main.ts",
+      "src/api/main/main.exe"
+    ]
+  }
 }

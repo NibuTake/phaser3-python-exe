@@ -92,3 +92,5 @@ npm run exe:portable
   - Devtool snatched keyboard input
 
 - There was a bug in the Electron `24.x.x`, so I used the 23 version instead
+
+// --platform win32 --arch x64

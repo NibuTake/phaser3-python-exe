@@ -48,6 +48,25 @@ export default class SceneOne extends Phaser.Scene {
     this.input.keyboard?.addKey("SPACE").on("down", () => {
       this.scene.start("scene2");
     });
+
+    const textZeo = new Phaser.GameObjects.Text(this, 200, 300, "no", {});
+    this.add.existing(textZeo);
+
+    fetch("http://localhost:8000", {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        const text = new Phaser.GameObjects.Text(
+          this,
+          100,
+          100,
+          data ? data.message : "no",
+          {}
+        );
+        this.add.existing(text);
+      });
   }
 
   update(time: number, delta: number): void {}
