@@ -1,7 +1,23 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const { execFile } = require("child_process");
+const fs = require("fs");
+const log = require("electron-log");
+
 let pythonProcess; // Pythonプロセスをグローバルに保持
+
+log.transports.file.level = "info";
+log.transports.file.file = "logs/" + "log.log";
+
+console.log = function (message) {
+  log.info(`${new Date().toISOString()} - LOG: ${message}\n`);
+};
+
+console.error = function (message) {
+  log.info(`${new Date().toISOString()} - ERROR: ${message}\n`);
+};
+
+console.log("ログシステムが初期化されました。");
 
 // Let electron reloads by itself
 if (
@@ -35,14 +51,18 @@ function createWindow() {
     mainWindow.loadFile(path.join(__dirname, "build/index.html"));
   }
   // Pythonのスタンドアロンexeを実行
-  const executablePath = path.join(__dirname, "build/main");
+  const executablePath = path.join(__dirname, "src/api/dist/main");
 
-  pythonProcess = execFile(executablePath, () => {
-    // if (error) {
-    //   console.error(`エラー: ${error}`);
-    //   return;
-    // }
-    // console.log(`Pythonの出力: ${stdout}`);
+  pythonProcess = execFile(executablePath, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`エラー: ${error.message}`);
+    }
+    if (stderr) {
+      console.error(`stderr: ${stderr}`);
+    }
+    if (stdout) {
+      console.log(`stdout: ${stdout}`);
+    }
   });
 
   if (process.env.ELECTRON_DEBUG === "true") {
@@ -50,8 +70,22 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
   }
 
+  pythonProcess.on("exit", (code, signal) => {
+    console.log(
+      `Pythonプロセスが終了しました。code: ${code}, signal: ${signal}`
+    );
+  });
+
   // keep ratio when scaling
   mainWindow.setAspectRatio(16 / 9);
+
+  // ウィンドウが閉じられたときにPythonプロセスを終了
+  mainWindow.on("closed", () => {
+    if (pythonProcess) {
+      pythonProcess.kill("SIGTERM"); // 強制終了
+      pythonProcess = undefined; // 変数をクリア
+    }
+  });
 }
 
 // This method will be called when Electron has finished
@@ -64,7 +98,7 @@ app.on("window-all-closed", () => {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (pythonProcess) {
-    pythonProcess.kill(); // プロセスを終了
+    pythonProcess.kill("SIGTERM"); // プロセスを強制終了
   }
   if (process.platform !== "darwin") {
     app.quit();
