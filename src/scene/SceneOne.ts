@@ -69,5 +69,21 @@ export default class SceneOne extends Phaser.Scene {
       });
   }
 
-  update(time: number, delta: number): void {}
+  update(time: number, delta: number): void {
+    fetch("http://localhost:8000", {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        const text = new Phaser.GameObjects.Text(
+          this,
+          100,
+          100,
+          data ? data.message : "no",
+          {}
+        );
+        this.add.existing(text);
+      });
+  }
 }

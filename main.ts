@@ -52,10 +52,12 @@ function createWindow() {
   }
   // Pythonのスタンドアロンexeを実行
   const executablePath = path.join(__dirname, "src/api/dist/main");
+  console.log("Python実行");
 
   pythonProcess = execFile(executablePath, (error, stdout, stderr) => {
     if (error) {
       console.error(`エラー: ${error.message}`);
+      console.error(`エラー: ${error}`);
     }
     if (stderr) {
       console.error(`stderr: ${stderr}`);
@@ -85,6 +87,7 @@ function createWindow() {
       pythonProcess.kill("SIGTERM"); // 強制終了
       pythonProcess = undefined; // 変数をクリア
     }
+    console.log("window closed");
   });
 }
 
@@ -95,6 +98,7 @@ app.on("ready", createWindow);
 
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
+  console.log("window all closed");
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (pythonProcess) {
