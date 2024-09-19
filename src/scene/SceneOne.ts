@@ -52,6 +52,26 @@ export default class SceneOne extends Phaser.Scene {
     const textZeo = new Phaser.GameObjects.Text(this, 200, 300, "no", {});
     this.add.existing(textZeo);
 
+    scene1Img2.setInteractive();
+
+    scene1Img2.on("pointerdown", () => {
+      fetch("http://localhost:8000", {
+        method: "GET",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          const text = new Phaser.GameObjects.Text(
+            this,
+            100,
+            100,
+            data ? data.message : "no",
+            {}
+          );
+          this.add.existing(text);
+        });
+    });
+
     fetch("http://localhost:8000", {
       method: "GET",
     })
